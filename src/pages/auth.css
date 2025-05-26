@@ -1,0 +1,56 @@
+/* Custom styles for SmartSnip auth pages */
+.neon-glow {
+  text-shadow: 0 0 5px rgba(255, 215, 0, 0.5), 0 0 10px rgba(255, 215, 0, 0.4), 0 0 20px rgba(255, 215, 0, 0.3);
+  animation: neon-flicker 2.5s ease-in-out infinite alternate;
+}
+
+@keyframes neon-flicker {
+  0% {
+    text-shadow: 0 0 5px rgba(255, 215, 0, 0.5), 0 0 10px rgba(255, 215, 0, 0.4), 0 0 20px rgba(255, 215, 0, 0.3);
+  }
+  100% {
+    text-shadow: 0 0 10px rgba(255, 215, 0, 0.8), 0 0 20px rgba(255, 215, 0, 0.6), 0 0 30px rgba(255, 215, 0, 0.4);
+  }
+}
+
+.glow-effect {
+  position: relative;
+  animation: glow 2s ease-in-out infinite alternate;
+}
+
+.glow-button {
+  position: relative;
+  animation: button-glow 2s ease-in-out infinite alternate;
+}
+
+@keyframes glow {
+  from {
+    box-shadow: 0 0 8px rgba(212, 160, 23, 0.3), 0 0 15px rgba(212, 160, 23, 0.2);
+  }
+  to {
+    box-shadow: 0 0 20px rgba(212, 160, 23, 0.5), 0 0 30px rgba(212, 160, 23, 0.3);
+  }
+}
+
+@keyframes button-glow {
+  from {
+    box-shadow: 0 0 10px rgba(212, 160, 23, 0.4);
+  }
+  to {
+    box-shadow: 0 0 20px rgba(212, 160, 23, 0.7);
+  }
+}
+
+.animate-pulse-slow {
+  animation: pulse-slow 8s ease-in-out infinite;
+}
+
+@keyframes pulse-slow {
+  0% { opacity: 0.3; }
+  50% { opacity: 0.5; }
+  100% { opacity: 0.3; }
+}
+
+.rounded-md2 {
+  border-radius: 0.375rem;
+}

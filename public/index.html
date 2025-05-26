@@ -1,0 +1,465 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>SmartSnip</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          colors: {
+            'gold-400': '#FFD700',
+            'gold-500': '#D4A017',
+            'gold-600': '#C68E14',
+            'gold-700': '#B87A12',
+          },
+          fontFamily: {
+            inter: ['Inter', 'sans-serif'],
+          },
+        },
+      },
+    };
+  </script>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;700;800&display=swap" rel="stylesheet">
+  <script src="https://cdn.jsdelivr.net/npm/react@18.2.0/umd/react.production.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/react-dom@18.2.0/umd/react-dom.production.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/react-router-dom@6.4.3/dist/umd/react-router-dom.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/framer-motion@11.0.3/dist/framer-motion.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/@babel/standalone@7.18.13/babel.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/axios@1.6.8/dist/axios.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/tsparticles-slim@2.12.0/tsparticles.slim.min.js"></script>
+  <style>
+    .neon-glow {
+      text-shadow: 0 0 5px rgba(255, 215, 0, 0.5), 0 0 10px rgba(255, 215, 0, 0.4), 0 0 20px rgba(255, 215, 0, 0.3);
+      animation: neon-flicker 2.5s ease-in-out infinite alternate;
+    }
+    @keyframes neon-flicker {
+      0% {
+        text-shadow: 0 0 5px rgba(255, 215, 0, 0.5), 0 0 10px rgba(255, 215, 0, 0.4), 0 0 20px rgba(255, 215, 0, 0.3);
+      }
+      100% {
+        text-shadow: 0 0 10px rgba(255, 215, 0, 0.8), 0 0 20px rgba(255, 215, 0, 0.6), 0 0 30px rgba(255, 215, 0, 0.4);
+      }
+    }
+    .glow-effect {
+      position: relative;
+      animation: glow 2s ease-in-out infinite alternate;
+    }
+    .glow-button {
+      position: relative;
+      animation: button-glow 2s ease-in-out infinite alternate;
+    }
+    @keyframes glow {
+      from {
+        box-shadow: 0 0 8px rgba(212, 160, 23, 0.3), 0 0 15px rgba(212, 160, 23, 0.2);
+      }
+      to {
+        box-shadow: 0 0 20px rgba(212, 160, 23, 0.5), 0 0 30px rgba(212, 160, 23, 0.3);
+      }
+    }
+    @keyframes button-glow {
+      from {
+        box-shadow: 0 0 10px rgba(212, 160, 23, 0.4);
+      }
+      to {
+        box-shadow: 0 0 20px rgba(212, 160, 23, 0.7);
+      }
+    }
+    .animate-pulse-slow {
+      animation: pulse-slow 8s ease-in-out infinite;
+    }
+    @keyframes pulse-slow {
+      0% { opacity: 0.3; }
+      50% { opacity: 0.5; }
+      100% { opacity: 0.3; }
+    }
+    .rounded-md2 {
+      border-radius: 0.375rem;
+    }
+    @media (max-width: 768px) {
+      .grid-cols-2, .grid-cols-3 {
+        grid-template-columns: 1fr;
+      }
+      .px-4 {
+        padding-left: 1rem;
+        padding-right: 1rem;
+      }
+      .text-4xl {
+        font-size: 2rem;
+      }
+      .text-2xl {
+        font-size: 1.5rem;
+      }
+      .p-5 {
+        padding: 1rem;
+      }
+    }
+    @media (max-width: 480px) {
+      .px-4 {
+        padding-left: 0.5rem;
+        padding-right: 0.5rem;
+      }
+      .text-4xl {
+        font-size: 1.75rem;
+      }
+      .text-sm {
+        font-size: 0.75rem;
+      }
+      .max-w-2xl {
+        max-width: 95%;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div id="root"></div>
+  <script type="text/babel">
+    const { useState, useEffect, useRef } = React;
+    const { Link, useNavigate, BrowserRouter, Routes, Route } = ReactRouterDOM;
+    const { motion, AnimatePresence } = window.FramerMotion;
+
+    function AuthForm({ title, submitText, onSubmit, linkText, linkTo, linkLabel }) {
+      const [email, setEmail] = useState('');
+      const [password, setPassword] = useState('');
+      const [errors, setErrors] = useState({});
+      const [message, setMessage] = useState('');
+      const [isLoading, setIsLoading] = useState(false);
+      const formRef = useRef(null);
+
+      useEffect(() => {
+        if (formRef.current) {
+          formRef.current.querySelector('input').focus();
+        }
+      }, []);
+
+      const particlesInit = async (engine) => {
+        await window.tsParticles.loadSlim(engine);
+      };
+
+      useEffect(() => {
+        particlesInit();
+        window.tsParticles.load('particles', {
+          particles: {
+            number: { value: 50, density: { enable: true, value_area: 800 } },
+            color: { value: ['#FFD700', '#D4A017'] },
+            shape: { type: 'circle' },
+            opacity: { value: 0.5, random: true },
+            size: { value: 3, random: true },
+            line_linked: {
+              enable: true,
+              distance: 120,
+              color: '#FFD700',
+              opacity: 0.3,
+              width: 1,
+            },
+            move: {
+              enable: true,
+              speed: 1,
+              direction: 'none',
+              random: true,
+              straight: false,
+              out_mode: 'out',
+            },
+          },
+          interactivity: {
+            detect_on: 'canvas',
+            events: {
+              onhover: { enable: true, mode: 'grab' },
+              onclick: { enable: true, mode: 'push' },
+              resize: true,
+            },
+            modes: {
+              grab: { distance: 140, line_linked: { opacity: 0.5 } },
+              push: { particles_nb: 3 },
+            },
+          },
+          retina_detect: true,
+        });
+      }, []);
+
+      const handleSubmit = async (e) => {
+        e.preventDefault();
+        setMessage('');
+        const success = await onSubmit(email, password, setErrors, setMessage, setIsLoading);
+        if (success) {
+          setEmail('');
+          setPassword('');
+        }
+      };
+
+      const variants = {
+        hidden: { opacity: 0, scale: 0.9, y: 50 },
+        visible: { opacity: 1, scale: 1, y: 0 },
+        exit: { opacity: 0, scale: 0.9, y: -50 },
+      };
+
+      return (
+        <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-gray-900 to-black p-4 relative overflow-hidden">
+          <div id="particles" className="absolute inset-0 z-0"></div>
+          <div className="absolute inset-0 bg-gray-900/30 animate-pulse-slow z-1"></div>
+          <motion.div
+            className="relative bg-white/10 backdrop-blur-2xl rounded-2xl shadow-2xl p-8 w-full max-w-md border border-gold-500/30 glow-effect z-10"
+            variants={variants}
+            initial="hidden"
+            animate="visible"
+            exit="exit"
+            transition={{ duration: 0.8, ease: 'easeOut' }}
+            role="dialog"
+            aria-labelledby="form-title"
+            ref={formRef}
+          >
+            <motion.h2
+              id="form-title"
+              className="text-4xl font-extrabold text-center mb-4 text-white neon-glow font-inter"
+              initial={{ opacity: 0, y: -20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ delay: 0.2, duration: 0.5 }}
+            >
+              SmartSnip
+            </motion.h2>
+            <motion.p
+              className="text-center text-sm mb-6 text-gray-300 font-inter"
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              transition={{ delay: 0.3, duration: 0.5 }}
+            >
+              {title}
+            </motion.p>
+            <form onSubmit={handleSubmit} className="space-y-6">
+              <motion.div
+                initial={{ opacity: 0, x: -20 }}
+                animate={{ opacity: 1, x: 0 }}
+                transition={{ delay: 0.4, duration: 0.5 }}
+              >
+                <label htmlFor="email" className="block text-sm font-medium text-gray-200 font-inter">
+                  Email
+                </label>
+                <input
+                  type="email"
+                  id="email"
+                  value={email}
+                  onChange={(e) => setEmail(e.target.value)}
+                  required
+                  className="mt-1 w-full p-4 rounded-md2 bg-black/50 border border-gold-500/50 text-white focus:outline-none focus:ring-2 focus:ring-gold-400 transition-all duration-300 font-inter placeholder-gray-400 hover:border-gold-400"
+                  placeholder="Enter your email"
+                  aria-invalid={!!errors.email}
+                  aria-describedby={errors.email ? 'email-error' : undefined}
+                />
+                <AnimatePresence>
+                  {errors.email && (
+                    <motion.p
+                      id="email-error"
+                      className="text-red-400 text-xs mt-1 font-inter"
+                      initial={{ opacity: 0, y: -10 }}
+                      animate={{ opacity: 1, y: 0 }}
+                      exit={{ opacity: 0, y: -10 }}
+                      transition={{ duration: 0.3 }}
+                    >
+                      {errors.email}
+                    </motion.p>
+                  )}
+                </AnimatePresence>
+              </motion.div>
+              <motion.div
+                initial={{ opacity: 0, x: -20 }}
+                animate={{ opacity: 1, x: 0 }}
+                transition={{ delay: 0.5, duration: 0.5 }}
+              >
+                <label htmlFor="password" className="block text-sm font-medium text-gray-200 font-inter">
+                  Password
+                </label>
+                <input
+                  type="password"
+                  id="password"
+                  value={password}
+                  onChange={(e) => setPassword(e.target.value)}
+                  required
+                  className="mt-1 w-full p-4 rounded-md2 bg-black/50 border border-gold-500/50 text-white focus:outline-none focus:ring-2 focus:ring-gold-400 transition-all duration-300 font-inter placeholder-gray-400 hover:border-gold-400"
+                  placeholder="Enter your password"
+                  aria-invalid={!!errors.password}
+                  aria-describedby={errors.password ? 'password-error' : undefined}
+                />
+                <AnimatePresence>
+                  {errors.password && (
+                    <motion.p
+                      id="password-error"
+                      className="text-red-400 text-xs mt-1 font-inter"
+                      initial={{ opacity: 0, y: -10 }}
+                      animate={{ opacity: 1, y: 0 }}
+                      exit={{ opacity: 0, y: -10 }}
+                      transition={{ duration: 0.3 }}
+                    >
+                      {errors.password}
+                    </motion.p>
+                  )}
+                </AnimatePresence>
+              </motion.div>
+              <motion.button
+                type="submit"
+                disabled={isLoading}
+                className="w-full p-4 rounded-md2 bg-gradient-to-r from-gold-500 to-gold-600 text-black font-semibold hover:from-gold-600 hover:to-gold-700 disabled:opacity-50 transition-all duration-300 font-inter flex items-center justify-center shadow-lg glow-button"
+                whileHover={{ scale: 1.05, boxShadow: '0 0 20px rgba(212, 160, 23, 0.6)' }}
+                whileTap={{ scale: 0.95 }}
+                aria-label={submitText}
+                initial={{ opacity: 0 }}
+                animate={{ opacity: 1 }}
+                transition={{ delay: 0.6, duration: 0.5 }}
+              >
+                {isLoading ? (
+                  <svg className="animate-spin h-5 w-5 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                    <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
+                    <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v8z"></path>
+                  </svg>
+                ) : (
+                  submitText
+                )}
+              </motion.button>
+              <AnimatePresence>
+                {message && (
+                  <motion.p
+                    className={`text-sm text-center font-inter ${message.includes('successful') ? 'text-green-400' : 'text-red-400'}`}
+                    initial={{ opacity: 0, y: 10 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    exit={{ opacity: 0, y: 10 }}
+                    transition={{ duration: 0.3 }}
+                  >
+                    {message}
+                  </motion.p>
+                )}
+              </AnimatePresence>
+              <motion.p
+                className="text-sm text-center text-gray-300 font-inter"
+                initial={{ opacity: 0 }}
+                animate={{ opacity: 1 }}
+                transition={{ delay: 0.7, duration: 0.5 }}
+              >
+                {linkText}{' '}
+                <Link to={linkTo} className="text-gold-400 hover:text-gold-300 font-semibold transition-all duration-200">
+                  {linkLabel}
+                </Link>
+              </motion.p>
+            </form>
+          </motion.div>
+        </div>
+      );
+    }
+
+    function Login() {
+      const navigate = useNavigate();
+
+      const handleSubmit = async (email, password, setErrors, setMessage, setIsLoading) => {
+        const newErrors = {};
+        if (!email.match(/^[\w-.]+@([\w-]+\.)+[\w-]{2,4}$/)) {
+          newErrors.email = 'Invalid email address';
+        }
+        if (password.length < 6) {
+          newErrors.password = 'Password must be at least 6 characters';
+        }
+        setErrors(newErrors);
+        if (Object.keys(newErrors).length > 0) return false;
+
+        setIsLoading(true);
+        try {
+          const res = await fetch('http://localhost:5000/api/auth/login', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ email, password }),
+          });
+          const data = await res.json();
+          if (res.ok) {
+            localStorage.setItem('token', data.token);
+            setMessage('Login successful');
+            setTimeout(() => navigate('/dashboard'), 1000);
+            return true;
+          } else {
+            setMessage(data.message || 'Login failed');
+            return false;
+          }
+        } catch (err) {
+          setMessage('Server error');
+          return false;
+        } finally {
+          setIsLoading(false);
+        }
+      };
+
+      return (
+        <AuthForm
+          title="Login to SmartSnip"
+          submitText="Login"
+          onSubmit={handleSubmit}
+          linkText="Don't have an account?"
+          linkTo="/register"
+          linkLabel="Sign up"
+        />
+      );
+    }
+
+    function Register() {
+      const navigate = useNavigate();
+
+      const handleSubmit = async (email, password, setErrors, setMessage, setIsLoading) => {
+        const newErrors = {};
+        if (!email.match(/^[\w-.]+@([\w-]+\.)+[\w-]{2,4}$/)) {
+          newErrors.email = 'Invalid email address';
+        }
+        if (password.length < 6) {
+          newErrors.password = 'Password must be at least 6 characters';
+        }
+        setErrors(newErrors);
+        if (Object.keys(newErrors).length > 0) return false;
+
+        setIsLoading(true);
+        try {
+          const res = await fetch('http://localhost:5000/api/auth/register', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ email, password }),
+          });
+          const data = await res.json();
+          if (res.ok) {
+            setMessage('Registration successful! Redirecting to login...');
+            setTimeout(() => navigate('/'), 2000);
+            return true;
+          } else {
+            setMessage(data.message || 'Registration failed');
+            return false;
+          }
+        } catch (err) {
+          setMessage('Server error');
+          return false;
+        } finally {
+          setIsLoading(false);
+        }
+      };
+
+      return (
+        <AuthForm
+          title="Register for SmartSnip"
+          submitText="Register"
+          onSubmit={handleSubmit}
+          linkText="Already have an account?"
+          linkTo="/login"
+          linkLabel="Login"
+        />
+      );
+    }
+
+    function App() {
+      return (
+        <BrowserRouter>
+          <Routes>
+            <Route path="/" element={<Login />} />
+            <Route path="/register" element={<Register />} />
+          </Routes>
+        </BrowserRouter>
+      );
+    }
+
+    const root = ReactDOM.createRoot(document.getElementById('root'));
+    root.render(<App />);
+  </script>
+</body>
+</html>
