@@ -24,7 +24,7 @@ export default function Dashboard() {
         setError('Please log in to view bookmarks.');
         return;
       }
-      const res = await axios.get(`http://localhost:5000/api/bookmarks${tag ? `?tag=${encodeURIComponent(tag)}` : ''}`, {
+      const res = await axios.get(`https://smartsnip-server.onrender.com/api/bookmarks${tag ? `?tag=${encodeURIComponent(tag)}` : ''}`, {
         headers: { Authorization: `Bearer ${token}` },
       });
       setError('');
@@ -58,7 +58,7 @@ export default function Dashboard() {
       }
       const tagArray = tags.split(',').map((tag) => tag.trim()).filter(Boolean);
       await axios.post(
-        'http://localhost:5000/api/bookmarks',
+        'https://smartsnip-server.onrender.com/api/bookmarks',
         { url, tags: tagArray },
         { headers: { Authorization: `Bearer ${token}` } }
       );
@@ -83,7 +83,7 @@ export default function Dashboard() {
         setError('Please log in to delete bookmarks.');
         return;
       }
-      await axios.delete(`http://localhost:5000/api/bookmarks/${id}`, {
+      await axios.delete(`https://smartsnip-server.onrender.com/api/bookmarks/${id}`, {
         headers: { Authorization: `Bearer ${token}` },
       });
       await fetchBookmarks(filterTag);
