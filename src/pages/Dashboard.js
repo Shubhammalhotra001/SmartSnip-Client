@@ -24,7 +24,7 @@ export default function Dashboard() {
         setError('Please log in to view bookmarks.');
         return;
       }
-      const res = await axios.get(`https://smartsnip-server.onrender.com/api/bookmarks${tag ? `?tag=${encodeURIComponent(tag)}` : ''}`, {
+      const res = await axios.get(`https://smartsnip-server.onrender.com${tag ? `?tag=${encodeURIComponent(tag)}` : ''}`, {
         headers: { Authorization: `Bearer ${token}` },
       });
       setError('');
@@ -253,24 +253,25 @@ export default function Dashboard() {
                   transition={{ duration: 0.5, delay: 0.1 * index }}
                   whileHover={{ scale: 1.02 }}
                 >
-                  <div className="flex items-center justify-between mb-2">
-                    <div className="flex items-center space-x-3">
+                  <div className="flex flex-col md:flex-row md:items-start justify-between gap-y-3 gap-x-4 mb-3">
+                    <div className="flex items-start space-x-3 flex-1 min-w-0">
                       <img
                         src={bookmark.favicon || `https://www.google.com/s2/favicons?domain=${bookmark.url}`}
                         alt={`${bookmark.title} favicon`}
-                        className="w-5 h-5"
+                        className="w-5 h-5 flex-shrink-0 mt-1" /* mt-1 aligns icon with top line of wrapped text */
                         onError={(e) => (e.target.src = 'https://via.placeholder.com/16')}
                       />
                       <a
                         href={bookmark.url}
                         target="_blank"
                         rel="noopener noreferrer"
-                        className="text-sm text-white font-medium hover:text-gold-400 transition-all duration-200"
+                        className="text-sm text-white font-medium hover:text-gold-400 transition-all duration-200 break-words leading-snug"
                       >
                         {bookmark.title || 'Untitled'}
                       </a>
                     </div>
-                    <div className="flex space-x-2">
+                    
+                    <div className="flex space-x-2 w-full md:w-auto justify-end flex-shrink-0">
                       <motion.button
                         onClick={() => handleViewSummary(bookmark)}
                         className="px-3 py-1 text-sm rounded-lg bg-gradient-to-r from-gold-500 to-gold-600 text-black hover:from-gold-600 hover:to-gold-700 transition-all duration-200 shadow-sm"
@@ -299,7 +300,8 @@ export default function Dashboard() {
                       </motion.button>
                     </div>
                   </div>
-                  <div className="flex flex-wrap gap-2">
+                  
+                  <div className="flex flex-wrap gap-2 mt-auto">
                     {bookmark.tags && bookmark.tags.length > 0 ? (
                       bookmark.tags.map((tag) => (
                         <motion.span
@@ -343,8 +345,8 @@ export default function Dashboard() {
               transition={{ duration: 0.3 }}
               onClick={(e) => e.stopPropagation()}
             >
-              <h3 id="summary-title" className="text-xl font-medium text-white mb-4">{selectedBookmark.title || 'Untitled'}</h3>
-              <p className="text-sm text-gray-300 mb-2">
+              <h3 id="summary-title" className="text-xl font-medium text-white mb-4 pr-2 break-words">{selectedBookmark.title || 'Untitled'}</h3>
+              <p className="text-sm text-gray-300 mb-2 break-all">
                 <strong>URL:</strong>{' '}
                 <a
                   href={selectedBookmark.url}
@@ -370,13 +372,13 @@ export default function Dashboard() {
                   <span className="text-xs text-gray-400">No tags</span>
                 )}
               </div>
-              <div className="bg-black/50 backdrop-blur-sm rounded-lg p-6 border border-gray-600">
+              <div className="bg-black/50 backdrop-blur-sm rounded-lg p-6 border border-gray-600 max-h-60 overflow-y-auto">
                 <h4 className="text-base font-medium text-white mb-3">Summary</h4>
                 <p className="text-base text-gray-300">{summary}</p>
               </div>
               <motion.button
                 onClick={handleCloseSummary}
-                className="mt-4 px-4 py-2 rounded-lg bg-gradient-to-r from-gold-500 to-gold-600 text-black hover:from-gold-600 hover:to-gold-700 transition-all duration-200 shadow-sm"
+                className="mt-4 px-4 py-2 rounded-lg bg-gradient-to-r from-gold-500 to-gold-600 text-black hover:from-gold-600 hover:to-gold-700 transition-all duration-200 shadow-sm w-full sm:w-auto"
                 whileHover={{ scale: 1.05 }}
                 whileTap={{ scale: 0.95 }}
                 aria-label="Close summary"
