@@ -24,7 +24,7 @@ export default function Dashboard() {
         setError('Please log in to view bookmarks.');
         return;
       }
-      const res = await axios.get(`https://smartsnip-server.onrender.com${tag ? `?tag=${encodeURIComponent(tag)}` : ''}`, {
+      const res = await axios.get(`https://smartsnip-server.onrender.com/api/bookmarks${tag ? `?tag=${encodeURIComponent(tag)}` : ''}`, {
         headers: { Authorization: `Bearer ${token}` },
       });
       setError('');
